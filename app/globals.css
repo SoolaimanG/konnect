@@ -574,3 +574,21 @@ body {
     transform: translateX(-100%); /* End position (left-most position) */
   }
 }
+
+/* Spinner Loader From 1000L */
+.spinner {
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background: radial-gradient(farthest-side, #d8d8f1 94%, #0000) top/9px 9px
+      no-repeat,
+    conic-gradient(#0000 30%, #d8d8f1);
+  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
+  animation: spinner-c7wet2 1s infinite linear;
+}
+
+@keyframes spinner-c7wet2 {
+  100% {
+    transform: rotate(1turn);
+  }
+}

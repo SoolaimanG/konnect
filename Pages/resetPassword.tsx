@@ -5,8 +5,11 @@ import Button from "@/Components/button";
 import ButtonTwo from "@/Components/buttonTwo";
 import Input from "@/Components/input";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const ResetPassword = ({ params }: { params: string }) => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const imageURL = "https://i.ibb.co/YBhPSWL/1691201964000-1.png";
   const route = useRouter();
   return (
@@ -34,8 +37,8 @@ const ResetPassword = ({ params }: { params: string }) => {
               Password
               <Input
                 includeBorder={true}
-                value={""}
-                setValue={() => {}}
+                value={password}
+                setValue={setPassword}
                 placeholder="IComeInPeace$12"
                 type="password"
                 disabled={false}
@@ -45,8 +48,8 @@ const ResetPassword = ({ params }: { params: string }) => {
               Confirm Password
               <Input
                 includeBorder={true}
-                value={""}
-                setValue={() => {}}
+                value={confirmPassword}
+                setValue={setConfirmPassword}
                 placeholder="IComeInPeace$12"
                 type="password"
                 disabled={false}
@@ -58,6 +61,7 @@ const ResetPassword = ({ params }: { params: string }) => {
               rounded={true}
               text="Reset"
               hover={false}
+              onClick={() => {}}
             />
           </form>
         </div>

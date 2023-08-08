@@ -6,13 +6,48 @@ import ButtonTwo from "@/Components/buttonTwo";
 import Input from "@/Components/input";
 import { BsFingerprint } from "react-icons/bs";
 import { useRouter } from "next/navigation";
+import { useContext, useState } from "react";
+import { ContextAPI } from "@/Providers/provider";
+import axios from "axios";
+import { regexForEmail } from "@/utils";
 
 const ForgetPassword = () => {
   const imageURL = "https://i.ibb.co/28Ls5X3/1691195346091-1.png";
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { dispatch } = useContext(ContextAPI);
   const route = useRouter();
 
+  const handleClick = async () => {
+    setLoading(true);
+    dispatch({ type: "loading" });
+
+    if (!regexForEmail.test(email)) {
+      dispatch({ type: "warning", payload: "Use a valid email" });
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .post("/api/send-reset-password", {
+        email: email,
+      })
+      .then((res) => {
+        //
+        dispatch({ type: "success", payload: res.statusText });
+      })
+      .catch(() => {
+        //
+        dispatch({ type: "error", payload: "Something went wrong" });
+      })
+      .finally(() => {
+        setLoading(false);
+        setEmail("");
+      });
+  };
+
   return (
-    <div className="w-full flex relative h-screen">
+    <div className="w-full flex-col-reverse md:flex-row flex relative h-screen">
       <div className="absolute z-30 mt-4 ml-4 top-0 left-0">
         <Button
           name="Back"
@@ -41,13 +76,16 @@ const ForgetPassword = () => {
                 includeBorder={true}
                 disabled={false}
                 placeholder="Johndoe@gmail.com"
-                value={""}
-                setValue={() => {}}
+                value={email}
+                setValue={setEmail}
                 type="email"
               />
             </label>
             <ButtonTwo
-              disabled={false}
+              onClick={() => {
+                handleClick();
+              }}
+              disabled={loading}
               text={"Send email"}
               hover={true}
               rounded={true}

@@ -6,14 +6,75 @@ import ButtonTwo from "@/Components/buttonTwo";
 import Input from "@/Components/input";
 import { IconButton } from "@mui/material";
 import Link from "next/link";
-import React from "react";
+import React, { useContext, useState } from "react";
 import { AiFillEye, AiFillEyeInvisible, AiFillLock } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
+import { signIn, useSession } from "next-auth/react";
+import { ContextAPI } from "@/Providers/provider";
+//import { findUserByUsername } from "@/Models";
+import { User } from "@/Types/types";
+//import { findUserByUsername } from "@/Actions/index.action";
 
 const Login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const loginImage = "https://i.ibb.co/41ZzNLG/1691178231552-1.png";
+  const { dispatch } = useContext(ContextAPI);
+  const { data } = useSession();
   const route = useRouter();
+
+  //Handle Signin here
+  const handleSignIn = async () => {
+    dispatch({ type: "loading" }); //Show the loading indicator
+    setLoading(true);
+
+    //!Check to block the request if fields are empty
+    if (!username) {
+      dispatch({ type: "warning", payload: "Username cannot be empty" });
+      setLoading(false);
+      return;
+    }
+
+    if (!password) {
+      dispatch({ type: "warning", payload: "Password cannot be empty" });
+      setLoading(false);
+      return;
+    }
+
+    //_Find user by username
+    //const userinfo: User = await findUserByUsername(username);
+
+    //const isEmailVerified = userinfo.emailVerified;
+
+    //SignIn Func for next auth
+    signIn("credentials", {
+      redirect: false,
+      password: password,
+      username: username,
+      //callbackUrl: isEmailVerified ? "/" : "/auth/verify-email",
+    })
+      .then((res) => {
+        //
+        if (res?.error === "Incorrect password") {
+          dispatch({ type: "error", payload: "Incorrect password" });
+        } else if (res?.error === "Incorrect username") {
+          dispatch({ type: "error", payload: "Incorrect username" });
+        } else if (res?.error) {
+          dispatch({ type: "error", payload: "Something went wrong" });
+        } else {
+          dispatch({ type: "none" });
+        }
+      })
+      .catch(() => {
+        dispatch({ type: "error", payload: "Something went wrong" });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
   return (
     <div className="w-full md:flex-row relative overflow-hidden flex-col-reverse flex h-screen">
       {/* The Login Forms Here */}
@@ -41,8 +102,8 @@ const Login = () => {
                 placeholder="John123"
                 includeBorder={true}
                 disabled={false}
-                value={""}
-                setValue={() => {}}
+                value={username}
+                setValue={setUsername}
               />
             </label>
             <label className="w-full" htmlFor="">
@@ -60,21 +121,30 @@ const Login = () => {
                 <input
                   placeholder="123456"
                   disabled={false}
-                  value={""}
-                  onChange={() => {}}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
                   className={`w-full text-[#252525] pl-1 outline-none`}
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name=""
                   id=""
                 />
-                <IconButton>
-                  <AiFillEye />
+                <IconButton
+                  onClick={() => {
+                    setShowPassword((prev) => !prev);
+                  }}
+                >
+                  {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
                 </IconButton>
               </div>
             </label>
             <div className="w-full mt-3">
               <ButtonTwo
-                disabled={false}
+                onClick={() => {
+                  handleSignIn();
+                }}
+                disabled={loading}
                 text="Login"
                 filled={true}
                 hover={true}
@@ -86,6 +156,7 @@ const Login = () => {
           <span>Or</span>
           <div className="w-full">
             <ButtonTwo
+              onClick={() => {}}
               disabled={false}
               text="Login with google"
               filled={false}

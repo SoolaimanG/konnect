@@ -1,35 +1,65 @@
 import mongoose from "mongoose";
 
+interface UserAuthProps {
+  username: string;
+  password: string;
+  email: string;
+  emailVerified: boolean;
+  firstTimeLogin: boolean;
+  image: string;
+  verifyAccountToken: string;
+}
+
 const Schema = mongoose.Schema;
 
-//Users Authentication Modal
-const UserAuth = new Schema({
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-  },
-  username: {
-    type: String,
-    unique: true,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false,
-  },
+const requestPassword = new Schema({
+  requestPassword: Boolean,
+  expires: Number,
+  lastRequest: Number,
+  requestID: String,
 });
 
-export const UserModal = mongoose.model("users", UserAuth); //Calling Our DB user
+//Users Authentication Modal
+const UserAuth = new Schema<UserAuthProps>(
+  {
+    username: {
+      type: String,
+      unique: true,
+      required: true,
+      select: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
+    email: {
+      type: String,
+      require: true,
+      select: true,
+    },
+    emailVerified: {
+      type: Boolean,
+      select: true,
+    },
+    firstTimeLogin: {
+      type: Boolean,
+      select: true,
+    },
+    image: {
+      type: String,
+      select: true,
+    },
+    verifyAccountToken: {
+      type: String,
+      select: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-//Using this micro function for checks
-export const findUserByEmail = async (email: string) => {
-  const user = await UserModal.findOne({ email: email });
-  return user;
-};
-
-export const findUserByUsername = async (username: string) => {
-  const user = await UserModal.findOne({ username: username });
-  return user;
-};
+//Creating new users
+export const UserModal =
+  mongoose.models?.users || mongoose.model("users", UserAuth); //Create instance for Our DB user

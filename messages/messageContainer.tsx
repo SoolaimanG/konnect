@@ -19,7 +19,7 @@ const MessageContainer = (props: messageContainerProps) => {
 
   //Setting the notification back to its original state(none)
   useEffect(() => {
-    if (state.messageType !== "none") {
+    if (state.messageType !== "none" && state.messageType !== "loading") {
       setTimeout(() => {
         dispatch({ type: "none" });
       }, 3500);
@@ -31,7 +31,7 @@ const MessageContainer = (props: messageContainerProps) => {
       {messageType === "error" ? (
         <Error message={message as string} />
       ) : messageType === "loading" ? (
-        <Loading message={message as string} />
+        <Loading />
       ) : messageType === "success" ? (
         <Success message={message as string} />
       ) : messageType === "message" ? (

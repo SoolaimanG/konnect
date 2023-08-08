@@ -1,7 +1,7 @@
-import MessageContainer from "@/messages/messageContainer";
 import "./globals.css";
 import { ContextProvider } from "@/Providers/provider";
 import Overall from "@/messages/overall";
+import AuthProvider from "@/Providers/authProvider";
 
 export default function RootLayout({
   children,
@@ -12,10 +12,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ContextProvider>
-          <div className="fixed z-30 top-0 right-0 mt-[68px] mr-3 md:mr-10">
-            <Overall />
-          </div>
-          {children}
+          <AuthProvider>
+            <div className="fixed z-30 top-0 right-0 mt-[20px] mr-3 md:mr-10">
+              <Overall />
+            </div>
+            {children}
+          </AuthProvider>
         </ContextProvider>
       </body>
     </html>

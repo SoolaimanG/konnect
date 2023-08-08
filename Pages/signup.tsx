@@ -7,15 +7,67 @@ import ButtonTwo from "@/Components/buttonTwo";
 import Input from "@/Components/input";
 import { IconButton } from "@mui/material";
 import Link from "next/link";
-import React, { useState } from "react";
-import { AiFillEye, AiFillQuestionCircle } from "react-icons/ai";
+import React, { useContext, useId, useState } from "react";
+import {
+  AiFillEye,
+  AiFillEyeInvisible,
+  AiFillQuestionCircle,
+} from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { ContextAPI } from "@/Providers/provider";
+import { FaPaperPlane } from "react-icons/fa";
+import { generateRandomProfileImage } from "@/Functions";
 
 const Signup = () => {
   const imageURL = "https://i.ibb.co/V3ycqqt/1691188417152-1.png";
   const route = useRouter();
   const [open, setOpen] = useState(false); //To pass to allModal Component
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { dispatch } = useContext(ContextAPI);
+  const [showModal, setShowModal] = useState(false);
+  let emailAddress = "";
+
+  //Input Change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  //Sending a post request using axios
+  const handleSubmit = async () => {
+    setLoading(true);
+    dispatch({ type: "loading" });
+    emailAddress = emailAddress;
+    await axios
+      .post("/api/signup", {
+        username: username,
+        email: email,
+        password: password,
+      })
+      .then((res) => {
+        dispatch({ type: "success", payload: res.statusText });
+        setShowModal(true);
+      })
+      .catch((err) => {
+        dispatch({ type: "error", payload: err.response.statusText });
+      })
+      .finally(() => setLoading(false));
+
+    //Clearing States
+    setUsername("");
+    setPassword("");
+    setEmail("");
+  };
+
+  const handleOpenEmail = () => {
+    window.open("mailto:" + emailAddress, "_blank");
+  };
+
   return (
     <div className="w-full h-screen relative overflow-hidden flex-col-reverse md:flex-row flex">
       {/* Form Here */}
@@ -120,8 +172,8 @@ const Signup = () => {
             <label htmlFor="">
               Email
               <Input
-                value={""}
-                setValue={() => {}}
+                value={email}
+                setValue={setEmail}
                 placeholder="johndoe@gmail.com"
                 includeBorder={true}
                 disabled={false}
@@ -131,8 +183,8 @@ const Signup = () => {
             <label htmlFor="">
               Username
               <Input
-                value={""}
-                setValue={() => {}}
+                value={username}
+                setValue={setUsername}
                 placeholder="John123"
                 includeBorder={true}
                 disabled={false}
@@ -143,23 +195,26 @@ const Signup = () => {
               Password
               <div className="border-solid w-full rounded-md flex items-center border-[1.3px] border-blue-400 h-[2.5rem]">
                 <input
-                  placeholder="123456"
+                  placeholder="ILoveToTravel$2023!"
                   disabled={false}
-                  value={""}
-                  onChange={() => {}}
+                  value={password}
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
                   className={`w-full text-[#252525] pl-1 outline-none`}
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name=""
                   id=""
                 />
-                <IconButton>
-                  <AiFillEye />
+                <IconButton onClick={() => setShowPassword((prev) => !prev)}>
+                  {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
                 </IconButton>
               </div>
             </label>
             <div className="w-full">
               <ButtonTwo
-                disabled={false}
+                onClick={() => handleSubmit()}
+                disabled={loading}
                 text="SignUp"
                 hover={true}
                 rounded={true}
@@ -169,6 +224,7 @@ const Signup = () => {
           </form>
           <p>Or</p>
           <ButtonTwo
+            onClick={() => {}}
             disabled={true}
             text="SignUp with Google"
             hover={false}
@@ -188,6 +244,34 @@ const Signup = () => {
           </p>
         </div>
       </div>
+
+      {/* Modal to show when account creation is successful */}
+      <AllModals button={<></>} open={showModal} setOpen={setShowModal}>
+        <div className="mt-4 h-full w-full flex-col gap-8 flex items-center justify-center">
+          <div className="text-blue-600 text-7xl">
+            <FaPaperPlane />
+          </div>
+          <p className="text-4xl font-semibold">Email Sent ✔</p>
+          <h3 className="text-2xl text-center">
+            A confirmation email has been sent to the email you provided.
+          </h3>
+          <span className="text-gray-500 text-center text-xl">
+            Please verify your account to gain access to all the app features
+          </span>
+          <div className="flex items-end justify-end flex-col h-full w-full">
+            <ButtonTwo
+              text="Open email"
+              rounded={true}
+              hover={false}
+              disabled={false}
+              filled={true}
+              onClick={() => {
+                handleOpenEmail();
+              }}
+            />
+          </div>
+        </div>
+      </AllModals>
       {/* BackGround Here */}
       <div className="w-full basis-[20%] md:basis-[60%] flex">
         <Background
